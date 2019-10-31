@@ -8,6 +8,7 @@ import (
 	"runtime"
 
 	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/freneticmonkey/imgui-go"
 )
 
 // GLFWClientAPI identifies the render system that shall be initialized.
