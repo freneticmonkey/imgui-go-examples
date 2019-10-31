@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/inkyblackness/imgui-go"
+	"github.com/freneticmonkey/imgui-go"
 
 	"github.com/inkyblackness/imgui-go-examples/internal/demo"
 	"github.com/inkyblackness/imgui-go-examples/internal/platforms"
@@ -17,6 +17,10 @@ func main() {
 	context := imgui.CreateContext(nil)
 	defer context.Destroy()
 	io := imgui.CurrentIO()
+	flags := imgui.ConfigFlagEnableDocking | imgui.ConfigFlagEnableViewports //| imgui.ConfigFlagNavEnableKeyboard |
+	io.SetConfigFlags(flags)
+
+
 
 	platform, err := platforms.NewGLFW(io, platforms.GLFWClientAPIOpenGL3)
 	if err != nil {

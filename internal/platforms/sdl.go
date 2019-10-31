@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/inkyblackness/imgui-go"
+	"github.com/freneticmonkey/imgui-go"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -212,36 +212,16 @@ func (platform *SDL) processEvent(event sdl.Event) {
 	case sdl.KEYDOWN:
 		keyEvent := event.(*sdl.KeyboardEvent)
 		platform.imguiIO.KeyPress(int(keyEvent.Keysym.Scancode))
-		platform.updateKeyModifier()
+		modState := int(sdl.GetModState())
+		platform.imguiIO.KeyShift(modState&sdl.KMOD_LSHIFT, modState&sdl.KMOD_RSHIFT)
+		platform.imguiIO.KeyCtrl(modState&sdl.KMOD_LCTRL, modState&sdl.KMOD_RCTRL)
+		platform.imguiIO.KeyAlt(modState&sdl.KMOD_LALT, modState&sdl.KMOD_RALT)
 	case sdl.KEYUP:
 		keyEvent := event.(*sdl.KeyboardEvent)
 		platform.imguiIO.KeyRelease(int(keyEvent.Keysym.Scancode))
-		platform.updateKeyModifier()
+		modState := int(sdl.GetModState())
+		platform.imguiIO.KeyShift(modState&sdl.KMOD_LSHIFT, modState&sdl.KMOD_RSHIFT)
+		platform.imguiIO.KeyCtrl(modState&sdl.KMOD_LCTRL, modState&sdl.KMOD_RCTRL)
+		platform.imguiIO.KeyAlt(modState&sdl.KMOD_LALT, modState&sdl.KMOD_RALT)
 	}
-}
-
-func (platform *SDL) updateKeyModifier() {
-	modState := sdl.GetModState()
-	mapModifier := func(lMask sdl.Keymod, lKey int, rMask sdl.Keymod, rKey int) (lResult int, rResult int) {
-		if (modState & lMask) != 0 {
-			lResult = lKey
-		}
-		if (modState & rMask) != 0 {
-			rResult = rKey
-		}
-		return
-	}
-	platform.imguiIO.KeyShift(mapModifier(sdl.KMOD_LSHIFT, sdl.SCANCODE_LSHIFT, sdl.KMOD_RSHIFT, sdl.SCANCODE_RSHIFT))
-	platform.imguiIO.KeyCtrl(mapModifier(sdl.KMOD_LCTRL, sdl.SCANCODE_LCTRL, sdl.KMOD_RCTRL, sdl.SCANCODE_RCTRL))
-	platform.imguiIO.KeyAlt(mapModifier(sdl.KMOD_LALT, sdl.SCANCODE_LALT, sdl.KMOD_RALT, sdl.SCANCODE_RALT))
-}
-
-// ClipboardText returns the current clipboard text, if available.
-func (platform *SDL) ClipboardText() (string, error) {
-	return sdl.GetClipboardText()
-}
-
-// SetClipboardText sets the text as the current clipboard text.
-func (platform *SDL) SetClipboardText(text string) {
-	_ = sdl.SetClipboardText(text)
 }

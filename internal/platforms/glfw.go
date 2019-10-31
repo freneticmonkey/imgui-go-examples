@@ -8,7 +8,6 @@ import (
 	"runtime"
 
 	"github.com/go-gl/glfw/v3.2/glfw"
-	"github.com/inkyblackness/imgui-go"
 )
 
 // GLFWClientAPI identifies the render system that shall be initialized.
@@ -129,6 +128,18 @@ func (platform *GLFW) NewFrame() {
 
 // PostRender performs a buffer swap.
 func (platform *GLFW) PostRender() {
+
+	flags := platform.imguiIO.GetConfigFlags()
+
+	if (flags & imgui.ConfigFlagEnableViewports) != 0 {
+		currContext := glfw.GetCurrentContext()
+
+		imgui.UpdatePlatformWindows()
+		imgui.RenderPlatformWindowsDefault()
+
+		currContext.MakeContextCurrent()
+	}
+
 	platform.window.SwapBuffers()
 }
 
@@ -205,14 +216,4 @@ func (platform *GLFW) keyChange(window *glfw.Window, key glfw.Key, scancode int,
 
 func (platform *GLFW) charChange(window *glfw.Window, char rune) {
 	platform.imguiIO.AddInputCharacters(string(char))
-}
-
-// ClipboardText returns the current clipboard text, if available.
-func (platform *GLFW) ClipboardText() (string, error) {
-	return platform.window.GetClipboardString()
-}
-
-// SetClipboardText sets the text as the current clipboard text.
-func (platform *GLFW) SetClipboardText(text string) {
-	platform.window.SetClipboardString(text)
 }

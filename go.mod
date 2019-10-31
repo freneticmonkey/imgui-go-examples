@@ -1,9 +1,13 @@
 module github.com/inkyblackness/imgui-go-examples
 
+replace github.com/inkyblackness/imgui-go => C:\Development\Projects\go\src\github.com\inkyblackness\imgui-go
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-gl/gl v0.0.0-20181026044259-55b76b7df9d2
-	github.com/go-gl/glfw v0.0.0-20190217072633-93b30450e032
-	github.com/inkyblackness/imgui-go v1.10.0
-	github.com/veandco/go-sdl2 v0.3.1
+	github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1
+	github.com/inkyblackness/imgui-go v1.9.0
+	github.com/veandco/go-sdl2 v0.3.0
 )
+
+go 1.13
