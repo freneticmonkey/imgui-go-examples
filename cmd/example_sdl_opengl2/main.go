@@ -8,9 +8,9 @@ import (
 
 	"github.com/freneticmonkey/imgui-go"
 
-	"github.com/inkyblackness/imgui-go-examples/internal/demo"
-	"github.com/inkyblackness/imgui-go-examples/internal/platforms"
-	"github.com/inkyblackness/imgui-go-examples/internal/renderers"
+	"github.com/frenticmonkey/imgui-go-examples/internal/demo"
+	"github.com/frenticmonkey/imgui-go-examples/internal/platforms"
+	"github.com/frenticmonkey/imgui-go-examples/internal/renderers"
 )
 
 func main() {
