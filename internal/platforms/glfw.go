@@ -23,6 +23,7 @@ const (
 // GLFW implements a platform based on github.com/go-gl/glfw (v3.2).
 type GLFW struct {
 	imguiIO imgui.IO
+	platformIO imgui.PlatformIO
 
 	window *glfw.Window
 
@@ -61,19 +62,13 @@ func NewGLFW(io imgui.IO, clientAPI GLFWClientAPI) (*GLFW, error) {
 	window.MakeContextCurrent()
 	glfw.SwapInterval(1)
 
+	pIO := SetupViewportHandling(io)
+	
 	platform := &GLFW{
 		imguiIO: io,
+		platformIO: pIO,
 		window:  window,
 	}
-
-	// FIXME: Enable Platform Viewports support
-	flags := 0
-	flags |= 1 << 10
-
-	// FIXME: Enable Renderer Viewports support
-	flags |= 1 << 12
-
-	io.SetBackendFlags(flags)
 
 	platform.setKeyMapping()
 	platform.installCallbacks()
