@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"runtime"
+	"unsafe"
 
 	"github.com/freneticmonkey/imgui-go"
 	"github.com/go-gl/glfw/v3.2/glfw"
@@ -62,17 +63,21 @@ func NewGLFW(io imgui.IO, clientAPI GLFWClientAPI) (*GLFW, error) {
 	window.MakeContextCurrent()
 	glfw.SwapInterval(1)
 
-	pIO := SetupViewportHandling(io)
-	
 	platform := &GLFW{
 		imguiIO: io,
-		platformIO: pIO,
 		window:  window,
 	}
 
+	platform.SetupViewportHandling()
 	platform.setKeyMapping()
-	platform.installCallbacks()
+	platform.installCallbacks(platform.window)
+	platform.updateMonitors()
 
+	mainViewport := imgui.GetMainViewport()
+	mainViewport.SetPlatformHandle(unsafe.Pointer(window.GLFWWindow()))
+	mainViewport.SetData(unsafe.Pointer(window))
+
+	window.GetUserPointer()
 	return platform, nil
 }
 
@@ -174,11 +179,11 @@ func (platform *GLFW) setKeyMapping() {
 	platform.imguiIO.KeyMap(imgui.KeyZ, int(glfw.KeyZ))
 }
 
-func (platform *GLFW) installCallbacks() {
-	platform.window.SetMouseButtonCallback(platform.mouseButtonChange)
-	platform.window.SetScrollCallback(platform.mouseScrollChange)
-	platform.window.SetKeyCallback(platform.keyChange)
-	platform.window.SetCharCallback(platform.charChange)
+func (platform *GLFW) installCallbacks(window *glfw.Window) {
+	window.SetMouseButtonCallback(platform.mouseButtonChange)
+	window.SetScrollCallback(platform.mouseScrollChange)
+	window.SetKeyCallback(platform.keyChange)
+	window.SetCharCallback(platform.charChange)
 }
 
 var glfwButtonIndexByID = map[glfw.MouseButton]int{
