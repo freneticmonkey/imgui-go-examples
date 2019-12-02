@@ -1,6 +1,6 @@
 module github.com/freneticmonkey/imgui-go-examples
 
-replace github.com/freneticmonkey/imgui-go => C:\Development\Projects\go\src\github.com\freneticmonkey\imgui-go
+replace github.com/freneticmonkey/imgui-go => C:\Dev\Go\src\github.com\freneticmonkey\imgui-go
 
 require (
 	github.com/freneticmonkey/imgui-go v0.0.0-00010101000000-000000000000

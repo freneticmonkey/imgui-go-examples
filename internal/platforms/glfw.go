@@ -24,16 +24,17 @@ const (
 // GLFW implements a platform based on github.com/go-gl/glfw (v3.2).
 type GLFW struct {
 	imguiIO imgui.IO
-	platformIO imgui.PlatformIO
+	platformIO *imgui.PlatformIO
 
 	window *glfw.Window
 
 	time             float64
 	mouseJustPressed [3]bool
+	updateMonitors   bool
 }
 
 // NewGLFW attempts to initialize a GLFW context.
-func NewGLFW(io imgui.IO, clientAPI GLFWClientAPI) (*GLFW, error) {
+func NewGLFW(io imgui.IO, clientAPI GLFWClientAPI, viewports, docking bool) (*GLFW, error) {
 	runtime.LockOSThread()
 
 	err := glfw.Init()
@@ -68,10 +69,10 @@ func NewGLFW(io imgui.IO, clientAPI GLFWClientAPI) (*GLFW, error) {
 		window:  window,
 	}
 
-	platform.SetupViewportHandling()
+	platform.SetupViewportHandling(viewports, docking)
 	platform.setKeyMapping()
 	platform.installCallbacks(platform.window)
-	platform.updateMonitors()
+	platform.doUpdateMonitors()
 
 	mainViewport := imgui.GetMainViewport()
 	mainViewport.SetPlatformHandle(unsafe.Pointer(window.GLFWWindow()))
@@ -115,6 +116,15 @@ func (platform *GLFW) NewFrame() {
 	displaySize := platform.DisplaySize()
 	platform.imguiIO.SetDisplaySize(imgui.Vec2{X: displaySize[0], Y: displaySize[1]})
 
+	frameBufferSize := platform.FramebufferSize()
+	if displaySize[0] > 0 && displaySize[1] > 0 {
+		platform.imguiIO.SetDisplayFrameBufferScale(imgui.Vec2{X: frameBufferSize[0] / displaySize[0], Y: frameBufferSize[1] / displaySize[1]})
+	}
+
+	if platform.updateMonitors {
+		platform.doUpdateMonitors()
+	}
+
 	// Setup time step
 	currentTime := glfw.GetTime()
 	if platform.time > 0 {
@@ -123,18 +133,7 @@ func (platform *GLFW) NewFrame() {
 	platform.time = currentTime
 
 	// Setup inputs
-	if platform.window.GetAttrib(glfw.Focused) != 0 {
-		x, y := platform.window.GetCursorPos()
-		platform.imguiIO.SetMousePosition(imgui.Vec2{X: float32(x), Y: float32(y)})
-	} else {
-		platform.imguiIO.SetMousePosition(imgui.Vec2{X: -math.MaxFloat32, Y: -math.MaxFloat32})
-	}
 
-	for i := 0; i < len(platform.mouseJustPressed); i++ {
-		down := platform.mouseJustPressed[i] || (platform.window.GetMouseButton(glfwButtonIDByIndex[i]) == glfw.Press)
-		platform.imguiIO.SetMouseButtonDown(i, down)
-		platform.mouseJustPressed[i] = false
-	}
 }
 
 // PostRender performs a buffer swap.
@@ -152,6 +151,28 @@ func (platform *GLFW) PostRender() {
 	}
 
 	platform.window.SwapBuffers()
+}
+
+func (platform *GLFW) updateMousePosAndButtons() {
+	if platform.window.GetAttrib(glfw.Focused) != 0 {
+		x, y := platform.window.GetCursorPos()
+
+		flags := platform.imguiIO.GetConfigFlags()
+		if (flags & imgui.ConfigFlagEnableViewports) != 0 {
+			wx, wy := platform.window.GetPos()
+			platform.imguiIO.SetMousePosition(imgui.Vec2{X: float32(x) + float32(wx), Y: float32(y) + float32(wy)})
+		} else {
+			platform.imguiIO.SetMousePosition(imgui.Vec2{X: float32(x), Y: float32(y)})
+		}
+	} else {
+		platform.imguiIO.SetMousePosition(imgui.Vec2{X: -math.MaxFloat32, Y: -math.MaxFloat32})
+	}
+
+	for i := 0; i < len(platform.mouseJustPressed); i++ {
+		down := platform.mouseJustPressed[i] || (platform.window.GetMouseButton(glfwButtonIDByIndex[i]) == glfw.Press)
+		platform.imguiIO.SetMouseButtonDown(i, down)
+		platform.mouseJustPressed[i] = false
+	}
 }
 
 func (platform *GLFW) setKeyMapping() {

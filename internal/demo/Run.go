@@ -2,9 +2,8 @@ package demo
 
 import (
 	"fmt"
-	"time"
-
 	"github.com/freneticmonkey/imgui-go"
+	"time"
 )
 
 // Platform covers mouse/keyboard/gamepad inputs, cursor shape, timing, windowing.
@@ -56,6 +55,10 @@ func Run(p Platform, r Renderer) {
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		{
 			imgui.Begin("Hello, world!") // Create a window called "Hello, world!" and append into it.
+			vp := imgui.WindowPos()
+			imgui.Text(fmt.Sprintf("Pos: x: %4.2f y: %4.2f", vp.X, vp.Y))
+			vs := imgui.WindowSize()
+			imgui.Text(fmt.Sprintf("Size: w: %4.2f h: %4.2f", vs.X, vs.Y))
 
 			imgui.Text("This is some useful text.") // Display some text
 
@@ -72,6 +75,28 @@ func Run(p Platform, r Renderer) {
 			imgui.Text(fmt.Sprintf("counter = %d", counter))
 
 			// TODO add text of FPS based on IO.Framerate()
+
+			imgui.End()
+		}
+
+		{
+			imgui.Begin("viewports")
+			vp := imgui.WindowPos()
+			imgui.Text(fmt.Sprintf("Pos: x: %4.2f y: %4.2f", vp.X, vp.Y))
+			vs := imgui.WindowSize()
+			imgui.Text(fmt.Sprintf("Size: w: %4.2f h: %4.2f", vs.X, vs.Y))
+
+			viewports := imgui.GetViewportList()
+			imgui.Text(fmt.Sprintf("# Viewports: %d", len(viewports)))
+			for _, viewport := range viewports {
+				imgui.Text(viewport.Title)
+				x, y := viewport.GetPosition()
+				w, h := viewport.GetSize()
+				imgui.Text(fmt.Sprintf("ID: %d", viewport.Id))
+				imgui.Text(fmt.Sprintf("Pos: x: %d y: %d", x, y))
+				imgui.Text(fmt.Sprintf("Size: w: %d h: %d", w, h))
+				//imgui.EndChild()
+			}
 
 			imgui.End()
 		}
